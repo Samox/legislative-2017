@@ -19,13 +19,20 @@ export const findEluTour1 = (circo: Resultat) => {
   }
 };
 
+type Candidate = {
+  voix: number;
+  result: number;
+  name: string;
+  nuance: string;
+};
+
 export const findFirstSecondThird = (circo: Resultat) => {
   const candidats = [];
   for (let i = 1; i <= 19; i++) {
     candidats.push({
       voix: parseInt(circo[`Voix ${i}`]),
       result: parseInt(circo[`% Voix/inscrits ${i}`]),
-      name: `${circo[`Nom candidat ${i}`]} ${circo[`Prénom candidat ${i}`]}`,
+      name: `${circo[`Prénom candidat ${i}`]} ${circo[`Nom candidat ${i}`]}`,
       nuance: circo[`Nuance candidat ${i}`],
     });
   }
@@ -35,9 +42,35 @@ export const findFirstSecondThird = (circo: Resultat) => {
   if (RNEnTete) {
     const second = candidats[1];
     const troisieme = candidats[2];
-    if (troisieme && troisieme.voix + second.voix > vainqueur.voix) {
+
+    if (
+      troisieme != undefined &&
+      !isUnGrosFDP(troisieme) &&
+      troisieme.voix + second.voix > vainqueur.voix
+    ) {
       vainqueur = second;
     }
   }
   return { candidates: candidats, vainqueur };
+};
+
+const isUnGrosFDP = (candidate: Candidate) => {
+  const grosFDP = [
+    "Anne-Laurence Petel", // Renaissance
+    "Emilie Chandler", // Renaissance
+    "Graig Monetti", // Horizon
+    "Dominique Despras", // Modem
+    "Romain Lefebvre", // LR
+    "Emmanuelle Anthoine", // LR
+    "Maxime Minot", // LR
+    "Nathalie Serre", // LR
+    "Fabrice Brun", // DVD
+    "Valérie Simonet", // DVD
+    "Gilles Platret", // DVD
+  ].map((name) => name.toLowerCase());
+  const isUnGrosFDP = grosFDP.includes(candidate.name.toLowerCase());
+  if (isUnGrosFDP) {
+    console.log("ca c'est un gros FDP", candidate.name);
+  }
+  return isUnGrosFDP;
 };
